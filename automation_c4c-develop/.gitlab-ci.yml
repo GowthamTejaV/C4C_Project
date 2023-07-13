@@ -1,0 +1,57 @@
+# include:
+
+#   - project: idp-education/shared/artifacts/devsecops/student-placement/code-quality-tools/java-code-quality-tools
+#     file: jobs/sonarqube-qa.yml
+
+stages:
+  # - codequality
+  - regression 
+
+regression_stage:
+  image: markhobson/maven-chrome
+  stage: regression
+  before_script:
+    - echo "###############################Debugging Starts#################################"
+    - |
+      printf "%-20s %-20s\n" "Maven version:" "$(mvn -v | grep 'Apache Maven')"
+      printf "%-20s %-20s\n" "Java version:" "$(java -version 2>&1 | grep 'version')"
+      printf "%-20s %-20s\n" "Google Chrome:" "$(google-chrome --version | cut -d ' ' -f 3)"
+      printf "%-20s %-20s\n" "ChromeDriver:" "$(/usr/bin/chromedriver -v | cut -d ' ' -f 2)"
+      printf "%-20s %-20s\n" "Docker version:" "$(docker --version | cut -d ' ' -f 3)"
+      printf "%-20s %-20s\n" "Docker OS:" "$(docker system info | grep 'Operating System' | cut -d ':' -f 2 | tr -d ' ')"
+    - echo "###############################Debugging Ends###############################"
+   # - echo "webdriver.chrome.driver=/usr/bin/chromedriver --whitelisted-ips='' >> /etc/chrome_dev.conf"
+  script:
+    - mvn clean test
+    #- mvn test -D"cucumber.filter.tags=@IDPREG11"
+  tags:
+    - SP_QA_SM
+  only: 
+    - develop
+  artifacts:
+    name: test_artifacts
+   
+    paths:
+      - target
+    when: always
+  timeout: 15h # Set the timeout to 8 hours
+
+
+after_script:
+    - echo "Sending notifications"
+    - |
+      if [[ "$CI_JOB_STATUS" == "success" ]]; then
+        echo "Tests passed!"
+        # Send a notification for a successful job
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{"text":"The regression tests have passed on GitLab CI."}' \
+        https://idpeducation.webhook.office.com/webhookb2/1ce7396d-ade7-41a6-825b-b6f68b27c006@c0c7ad79-cf13-4f39-8eeb-a1829aa096a6/IncomingWebhook/7a17162ba3244b329a83ab836a000f5b/62a6911e-6056-46fc-ada6-126672b190f4
+      elif [[ "$CI_JOB_STATUS" == "failed" ]]; then
+        echo "Tests failed!"
+        # Send a notification for a failed job
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{"text":"The regression tests have failed on GitLab CI."}' \
+        https://idpeducation.webhook.office.com/webhookb2/1ce7396d-ade7-41a6-825b-b6f68b27c006@c0c7ad79-cf13-4f39-8eeb-a1829aa096a6/IncomingWebhook/7a17162ba3244b329a83ab836a000f5b/62a6911e-6056-46fc-ada6-126672b190f4
+      else
+        echo "Job status unknown."
+      fi
