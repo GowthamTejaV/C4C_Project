@@ -2,7 +2,6 @@ Feature: CRT
 
   @regression @CTRReg1
   Scenario: Verify the tabs for the account as a Client Relation role
-    #Given User Login to C4C as a client relation role
     Given User login to the application as "CRT" in "TRAIN"
     And user navigate to the Accounts tab
     And user open any one of the accounts
