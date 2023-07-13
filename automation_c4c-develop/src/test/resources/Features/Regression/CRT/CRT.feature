@@ -20,7 +20,6 @@ Feature: CRT
 
   @regression @CTRReg2
   Scenario: Verify the tabs for the account as a counsellor
-    #Given User Login to C4C as a counsellor
     Given User login to the application as "Counsellor" in "TRAIN"
     And user navigate to the Accounts tab
     And user open any one of the accounts
@@ -34,7 +33,6 @@ Feature: CRT
 
   @regression @CTRReg3
   Scenario: Verify the tabs for the contacts as a Client Relation role
-    #Given User Login to C4C as a client relation role
     Given User login to the application as "CRT" in "TRAIN"
     And user navigate to the Contacts tab
     And user open any one of the Contacts
@@ -46,7 +44,6 @@ Feature: CRT
 
   @regression @CTRReg9
   Scenario: Verify the tabs for the contacts as a AR role
-    #Given User Login to C4C as a Account Receivable
     Given User login to the application as "AR" in "UAT"
     And user navigate to the Contacts tab
     And user open any one of the Contacts as AR
